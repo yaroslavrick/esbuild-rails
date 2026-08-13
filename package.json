@@ -1,9 +1,11 @@
 {
   "name": "esbuild-rails",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Esbuild plugin for Rails applications",
   "main": "src/index.js",
-  "files": ["src/index.js"],
+  "files": [
+    "src/index.js"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
