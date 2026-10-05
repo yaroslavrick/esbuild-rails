@@ -12,6 +12,23 @@ function convertFilenameToControllerName(filename) {
     .replace(/_/g, '-') //
 }
 
+// The leading segments of a pattern before the first glob character
+// './controllers/**/*_controller.js' => './controllers'
+function staticBase(pattern) {
+  const segments = pattern.split('/')
+  return segments.slice(0, segments.findIndex(segment => /[*?[\]{}()]/.test(segment))).join('/') || '.'
+}
+
+// Paths are built from the pattern's static base as written, the way fast-glob returned them
+// [ './controllers/hello_controller.js', '../javascript/controllers/hello_controller.js', ... ]
+function glob(pattern, cwd) {
+  const base = staticBase(pattern)
+  return globSync(pattern, { cwd, absolute: true }).map(file => {
+    const relative = path.relative(path.resolve(cwd, base), file).split(path.sep).join('/')
+    return base === '.' ? relative : `${base}/${relative}`
+  })
+}
+
 // This plugin adds support for globs like "./**/*" to import an entire directory
 // We can use this to import arbitrary files or Stimulus controllers and ActionCable channels
 const railsPlugin = (options = { matcher: /.+\..+/ }) => ({
@@ -36,11 +53,7 @@ const railsPlugin = (options = { matcher: /.+\..+/ }) => ({
 
     build.onLoad({ filter: /.*/, namespace: 'rails' }, async (args) => {
       // Get a list of all files in the directory
-      let files = (
-        globSync(args.pluginData.path, {
-          cwd: args.pluginData.resolveDir,
-        })
-      )
+      let files = glob(args.pluginData.path, args.pluginData.resolveDir)
 
       const watchedDirs = new Set();
       watchedDirs.add(args.pluginData.resolveDir);
