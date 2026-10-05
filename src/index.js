@@ -1,5 +1,5 @@
 const path = require('path')
-const fg = require('fast-glob')
+const { globSync } = require('tinyglobby')
 
 // Transform filenames to controller names
 // [ './admin/hello_world_controller.js', ... ]
@@ -37,7 +37,7 @@ const railsPlugin = (options = { matcher: /.+\..+/ }) => ({
     build.onLoad({ filter: /.*/, namespace: 'rails' }, async (args) => {
       // Get a list of all files in the directory
       let files = (
-        fg.sync(args.pluginData.path, {
+        globSync(args.pluginData.path, {
           cwd: args.pluginData.resolveDir,
         })
       )
