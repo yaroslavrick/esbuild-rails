@@ -1,6 +1,8 @@
 const path = require('path')
 const { globSync } = require('tinyglobby')
 
+const GLOB_CHARACTER = /[*?[\]{}()]/
+
 // Transform filenames to controller names
 // [ './admin/hello_world_controller.js', ... ]
 // [ 'admin--hello-world', ... ]
@@ -16,7 +18,7 @@ function convertFilenameToControllerName(filename) {
 // './controllers/**/*_controller.js' => './controllers'
 function staticBase(pattern) {
   const segments = pattern.split('/')
-  return segments.slice(0, segments.findIndex(segment => /[*?[\]{}()]/.test(segment))).join('/') || '.'
+  return segments.slice(0, segments.findIndex(segment => GLOB_CHARACTER.test(segment))).join('/') || '.'
 }
 
 // Paths are built from the pattern's static base as written, the way fast-glob returned them
